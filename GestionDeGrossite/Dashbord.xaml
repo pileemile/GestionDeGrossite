@@ -10,7 +10,7 @@
         </Grid.RowDefinitions>
 
         <!-- Section du haut pour les notifications -->
-        <TextBlock Grid.Row="0" Text="Notification/Avertissement fin de stock x5" 
+        <TextBlock x:Name="notificationsTextBlock" Grid.Row="0" 
                    FontSize="14" Background="#f5f5f5" Padding="10" HorizontalAlignment="Stretch"/>
 
         <!-- Section principale du contenu -->
@@ -23,12 +23,18 @@
 
             <!-- Section Montant total des ventes -->
             <Border Grid.Column="0" BorderBrush="#ddd" BorderThickness="1" Padding="10" Margin="5">
-                <TextBlock Text="Montant total vente date à date (1 an)" HorizontalAlignment="Center"/>
+                <StackPanel>
+                    <TextBlock Text="Montant Total des Ventes" FontWeight="Bold" FontSize="14" TextAlignment="Center"/>
+                    <TextBlock x:Name="totalSalesTextBlock" TextAlignment="Center" Margin="5"/>
+                </StackPanel>
             </Border>
 
-            <!-- Section Produit Best Seller -->
+            <!-- Section Produit Best Seller avec classement -->
             <Border Grid.Column="1" BorderBrush="#ddd" BorderThickness="1" Padding="10" Margin="5">
-                <TextBlock Text="Produit Best Seller" HorizontalAlignment="Center"/>
+                <StackPanel>
+                    <TextBlock Text="Top des Produits" FontWeight="Bold" FontSize="14" TextAlignment="Center"/>
+                    <TextBlock x:Name="bestSellerTextBlock" TextAlignment="Center" Margin="5"/>
+                </StackPanel>
             </Border>
 
             <!-- Section des statistiques de vente -->

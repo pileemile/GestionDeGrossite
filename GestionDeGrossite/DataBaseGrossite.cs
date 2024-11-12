@@ -233,5 +233,96 @@ public static class DataBaseGrossite
 
         return isValidUser;
     }
+    public static decimal GetTotalSalesAmountBetweenDates(DateTime startDate, DateTime endDate)
+    {
+        decimal totalSalesAmount = 0;
+
+        using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+        {
+            conn.Open();
+
+            string query = @"
+            SELECT SUM(p.prix * o.quantite) AS total_ventes
+            FROM orders o
+            JOIN produits p ON o.produit_id = p.id
+            WHERE o.date_commande BETWEEN @startDate AND @endDate;";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@startDate", startDate.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@endDate", endDate.ToString("yyyy-MM-dd"));
+
+                var result = cmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                {
+                    totalSalesAmount = Convert.ToDecimal(result);
+                }
+            }
+        }
+
+        return totalSalesAmount;
+    }
+
+
+    // Méthode pour récupérer le produit "Best Seller"
+    public static List<string> GetBestSellerRanking(int topN = 5)
+    {
+        List<string> bestSellerRanking = new List<string>();
+
+        using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+        {
+            conn.Open();
+
+            string query = $@"
+            SELECT p.nom, SUM(o.quantite) AS total_vendu
+            FROM orders o
+            JOIN produits p ON o.produit_id = p.id
+            GROUP BY p.id
+            ORDER BY total_vendu DESC
+            LIMIT {topN};";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
+            {
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string productName = reader["nom"].ToString();
+                        int quantitySold = Convert.ToInt32(reader["total_vendu"]);
+                        bestSellerRanking.Add($"{productName} - {quantitySold} unités vendues");
+                    }
+                }
+            }
+        }
+
+        return bestSellerRanking;
+    }
+
+    // Méthode pour récupérer le nombre de notifications de fin de stock
+    public static int GetLowStockNotifications()
+    {
+        int notificationCount = 0;
+
+        using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+        {
+            conn.Open();
+
+            string query = @"
+                SELECT COUNT(*) 
+                FROM produits 
+                WHERE quantite < 5;"; // Seuil de fin de stock
+
+            using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
+            {
+                var result = cmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                {
+                    notificationCount = Convert.ToInt32(result);
+                }
+            }
+        }
+
+        return notificationCount;
+    }
 }
 
