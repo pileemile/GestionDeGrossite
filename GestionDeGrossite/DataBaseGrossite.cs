@@ -1,5 +1,7 @@
 ﻿using System.Data.SQLite;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 
 public static class DataBaseGrossite
 {
@@ -181,4 +183,55 @@ public static class DataBaseGrossite
             Console.WriteLine("Erreur lors de l'initialisation de la base de données : " + ex.Message);
         }
     }
+
+    private static string HashPassword(string password)
+    {
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                builder.Append(bytes[i].ToString("x2"));
+            }
+            return builder.ToString();
+        }
+    }
+
+    public static bool ValidateUser(string username, string password)
+    {
+        bool isValidUser = false;
+
+        // Hacher le mot de passe avant de vérifier dans la base de données
+        string hashedPassword = HashPassword(password);
+
+        using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+        {
+            conn.Open();
+
+            // Requête SQL pour vérifier les identifiants
+            string query = "SELECT * FROM users WHERE username = @username AND password = @password";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
+            {
+                // Paramètres pour éviter les injections SQL
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.Parameters.AddWithValue("@password", hashedPassword); // Utiliser le mot de passe haché
+
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    // Vérifier s'il existe au moins une ligne correspondante
+                    if (reader.Read())
+                    {
+                        isValidUser = true;
+                    }
+                }
+            }
+
+            conn.Close();
+        }
+
+        return isValidUser;
+    }
 }
+

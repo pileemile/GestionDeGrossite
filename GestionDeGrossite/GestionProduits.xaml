@@ -1,0 +1,28 @@
+﻿<Window x:Class="GestionDeGrossite.GestionProduits"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Gestion des Produits" Height="400" Width="600">
+    <Grid>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20">
+            <!-- Zone de gestion des produits -->
+            <TextBlock Text="Gestion des Produits" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+            <!-- Liste dynamique des produits -->
+            <ItemsControl x:Name="ProductList" Margin="10">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="5">
+                            <TextBox Width="200" Height="30" Text="Nom du produit" Margin="5"/>
+                            <Button Content="Ajouter" Width="100" Height="30" Margin="5"/>
+                            <Button Content="Modifier" Width="100" Height="30" Margin="5"/>
+                            <Button Content="Supprimer" Width="100" Height="30" Margin="5"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Bouton pour ajouter une nouvelle ligne de produit -->
+            <Button Content="+" Width="50" Height="30" Margin="5" Click="AddProduct_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
