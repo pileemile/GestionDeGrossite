@@ -1,4 +1,9 @@
-﻿using System.Windows;
+﻿using System;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using Newtonsoft.Json;
 
 namespace GestionDeGrossite
 {
@@ -7,31 +12,108 @@ namespace GestionDeGrossite
         public MainWindow()
         {
             InitializeComponent();
-            DataBaseGrossite.InitializeDataBase();
         }
 
-        // Méthode appelée lorsque l'utilisateur clique sur le bouton de connexion
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            // Récupération des valeurs saisies par l'utilisateur
-            string username = UsernameTextBox.Text; // TextBox du nom d'utilisateur
-            string password = PasswordBox.Password; // PasswordBox du mot de passe
+            string username = UsernameTextBox.Text;
+            string password = PasswordBox.Password;
 
-            // Vérification des identifiants
-            if (DataBaseGrossite.ValidateUser(username, password))
+            var result = await AuthenticateUser(username, password);
+
+            if (result.IsAuthenticated)
             {
-                // Ouvrir la fenêtre du tableau de bord si la validation est réussie
+                // Enregistrez le token pour une utilisation ultérieure si nécessaire
+                Console.WriteLine($"Token d'accès : {result.AccessToken}");
+
                 Dashbord dashbordWindow = new Dashbord();
                 dashbordWindow.Show();
-
-                // Fermer la fenêtre de connexion
                 this.Close();
             }
             else
             {
-                // Affichage d'un message d'erreur si les identifiants sont incorrects
-                MessageBox.Show("Nom d'utilisateur ou mot de passe incorrect.", "Erreur de connexion", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(result.ErrorMessage, "Erreur de connexion", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private async Task<LoginResult> AuthenticateUser(string username, string password)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    string apiUrl = "http://localhost:3200/api/users/login/";
+
+                    var loginData = new
+                    {
+                        username = username,
+                        password = password
+                    };
+
+                    var content = new StringContent(JsonConvert.SerializeObject(loginData), Encoding.UTF8, "application/json");
+
+                    var response = await client.PostAsync(apiUrl, content);
+
+                    string responseString = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("Réponse complète : " + responseString);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Désérialisez la réponse pour obtenir les tokens
+                        var jsonResponse = JsonConvert.DeserializeObject<LoginResponse>(responseString);
+
+                        return new LoginResult
+                        {
+                            IsAuthenticated = true,
+                            AccessToken = jsonResponse.Access,
+                            RefreshToken = jsonResponse.Refresh
+                        };
+                    }
+                    else
+                    {
+                        // Gérez les erreurs de manière plus détaillée
+                        var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseString);
+                        return new LoginResult
+                        {
+                            IsAuthenticated = false,
+                            ErrorMessage = errorResponse?.Detail ?? "Erreur inconnue lors de l'authentification."
+                        };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur lors de l'authentification : " + ex.Message);
+                    return new LoginResult
+                    {
+                        IsAuthenticated = false,
+                        ErrorMessage = "Une erreur s'est produite. Veuillez vérifier votre connexion réseau."
+                    };
+                }
+            }
+        }
+    }
+
+    // Classes auxiliaires pour la gestion des réponses
+    public class LoginResponse
+    {
+        [JsonProperty("access")]
+        public string Access { get; set; }
+
+        [JsonProperty("refresh")]
+        public string Refresh { get; set; }
+    }
+
+    public class ErrorResponse
+    {
+        [JsonProperty("detail")]
+        public string Detail { get; set; }
+    }
+
+    public class LoginResult
+    {
+        public bool IsAuthenticated { get; set; }
+        public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }
