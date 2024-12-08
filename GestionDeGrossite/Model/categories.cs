@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace GestionDeGrossite.Model
 {
-    internal class clients
+    public class categories
     {
-        public string nom { get; set; }
-        public string adresse { get; set; }
-        public string siret { get; set; }
+        public int Id { get; set; }
+        public string Nom { get; set; }
     }
 }
-

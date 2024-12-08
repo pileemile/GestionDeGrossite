@@ -7,22 +7,35 @@
             <!-- Zone de gestion des produits -->
             <TextBlock Text="Gestion des Produits" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
 
+            <!-- Zone de saisie pour le produit -->
+            <TextBox x:Name="ProductNameTextBox" Width="200" Height="30" Margin="5"/>
+            <TextBox x:Name="ProductPriceTextBox" Width="200" Height="30" Margin="5"/>
+            <TextBox x:Name="ProductQuantityTextBox" Width="200" Height="30" Margin="5"/>
+            <DatePicker x:Name="ExpirationDatePicker" Width="200" Height="30" Margin="5"/>
+            <TextBox x:Name="LocationTextBox" Width="200" Height="30" Margin="5"/>
+
+            <!-- ComboBox pour choisir la catégorie -->
+            <ComboBox x:Name="CategoryComboBox" Width="200" Height="30" Margin="5" DisplayMemberPath="Nom" SelectedValuePath="Id" />
+
+            <!-- Bouton pour ajouter une nouvelle ligne de produit -->
+            <Button Content="Ajouter" Width="100" Height="30" Margin="5" Click="AddProduct_Click"/>
+
             <!-- Liste dynamique des produits -->
             <ItemsControl x:Name="ProductList" Margin="10">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" Margin="5">
-                            <TextBox Width="200" Height="30" Text="Nom du produit" Margin="5"/>
-                            <Button Content="Ajouter" Width="100" Height="30" Margin="5"/>
+                            <TextBlock Width="200" Height="30" Text="{Binding Nom}" Margin="5"/>
+                            <TextBlock Width="100" Height="30" Text="{Binding Prix}" Margin="5"/>
+                            <TextBlock Width="100" Height="30" Text="{Binding Quantite}" Margin="5"/>
+                            <TextBlock Width="100" Height="30" Text="{Binding Categorie.Nom}" Margin="5"/>
+                            <!-- Affichage du nom de la catégorie -->
                             <Button Content="Modifier" Width="100" Height="30" Margin="5"/>
                             <Button Content="Supprimer" Width="100" Height="30" Margin="5"/>
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-
-            <!-- Bouton pour ajouter une nouvelle ligne de produit -->
-            <Button Content="+" Width="50" Height="30" Margin="5" Click="AddProduct_Click"/>
         </StackPanel>
     </Grid>
 </Window>

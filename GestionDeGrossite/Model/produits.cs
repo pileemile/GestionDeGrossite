@@ -9,13 +9,13 @@ namespace GestionDeGrossite.Model
 {
     public class produits
     {
-        public string nom { get; set; }
-        public decimal prix { get; set; }
-        public int quantite { get; set; }
-        public string categorie { get; set; }
-        public DateTime data_peremtion { get; set; }
-        public string emplacement { get; set; }
+        public int Id { get; set; }
+        public string Nom { get; set; }
+        public string Prix { get; set; }
+        public int Quantite { get; set; }
+        public DateTime? date_peremtion { get; set; }
+        public string Emplacement { get; set; }
+        public int Categorie { get; set; }
     }
 
-    }
 }

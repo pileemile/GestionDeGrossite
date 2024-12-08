@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GestionDeGrossite.Model
 {
-    internal class orders
+    public class orders
     {
         public int Id { get; set; }
         public int Client { get; set; }
